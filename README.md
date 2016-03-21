@@ -1,1 +1,3 @@
-# Projekt-szi
+
+# wAIter
+###### Inteligentny Kelner
