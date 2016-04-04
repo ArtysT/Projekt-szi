@@ -1,0 +1,12 @@
+﻿Greeting� hi
+Farewell� bye
+Greeting� hello
+Farewell� by
+Greeting� czesc
+Greeting� hi
+Value� your name§=§adrian
+Value� your girlfriend§=§angelika
+Value� your age§=§23 years old
+Value� your car§=§audi
+Value� my name§=§genesis
+Value� my inteligence§=§low
