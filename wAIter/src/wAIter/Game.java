@@ -1,24 +1,20 @@
 package wAIter;
 
-import wAIter.display.Display;
-import wAIter.gfx.Assets;
-import wAIter.gfx.ImageLoader;
-import wAIter.gfx.SpriteSheet;
-import wAIter.input.KeyMenager;
-import wAIter.states.GameState;
-import wAIter.states.MenuState;
-import wAIter.states.State;
-
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
+
+import wAIter.display.Display;
+import wAIter.entities.Entity;
+import wAIter.entities.Floor;
+import wAIter.entities.Waiter;
+import wAIter.map.Map;
 
 public class Game implements Runnable {
 
     private Display display;
-
-    public String title;
+    private Map map;
     public int width, height;
+    public String title;
 
     private boolean running = false;
     private Thread thread;
@@ -26,57 +22,40 @@ public class Game implements Runnable {
     private BufferStrategy bs;
     private Graphics g;
 
-    //States
-    private State gameState;
-    private State menuState;
-
-    //Input
-    private KeyMenager keyMenager;
-
-    //Handler
-    private Handler handler;
-
     public Game(String title, int width, int height){
-        this.title = title;
         this.width = width;
         this.height = height;
-        keyMenager = new KeyMenager();
+        this.title = title;
     }
 
     private void init(){
         display = new Display(title, width, height);
-        display.getFrame().addKeyListener(keyMenager);
-        Assets.init();
-
-        handler = new Handler(this);
-
-        gameState = new GameState(handler);
-        menuState = new MenuState(handler);
-        State.setState(gameState);
+        map = new Map(10);
     }
 
     private void tick(){
-        keyMenager.tick();
-
-        if (State.getState() != null)
-            State.getState().tick();
+        map.Move();
     }
 
     private void render(){
         bs = display.getCanvas().getBufferStrategy();
-        if (bs == null){
+        if(bs == null){
             display.getCanvas().createBufferStrategy(3);
             return;
         }
         g = bs.getDrawGraphics();
-        //Wczyść ekran
+        //Clear Screen
         g.clearRect(0, 0, width, height);
-        //Rysuj tutaj
+        //Draw Here!
 
-        if (State.getState() != null)
-            State.getState().render(g);
+        map.render(g);
 
-        //koniec rysowania
+        //g.setColor(Color.red);
+        //g.fillRect(10, 50, 50, 70);
+        //g.setColor(Color.green);
+        //g.fillRect(0, 0, 10, 10);
+
+        //End Drawing!
         bs.show();
         g.dispose();
     }
@@ -85,7 +64,7 @@ public class Game implements Runnable {
 
         init();
 
-        int fps = 60;
+        int fps = 4;
         double timePerTick = 1000000000 / fps;
         double delta = 0;
         long now;
@@ -107,12 +86,8 @@ public class Game implements Runnable {
 
     }
 
-    public KeyMenager getKeyMenager(){
-        return keyMenager;
-    }
-
     public synchronized void start(){
-        if (running)
+        if(running)
             return;
         running = true;
         thread = new Thread(this);
@@ -120,7 +95,7 @@ public class Game implements Runnable {
     }
 
     public synchronized void stop(){
-        if (!running)
+        if(!running)
             return;
         running = false;
         try {
