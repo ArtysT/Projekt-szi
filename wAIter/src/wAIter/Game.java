@@ -30,7 +30,7 @@ public class Game implements Runnable {
 
     private void init(){
         display = new Display(title, width, height);
-        map = new Map(10);
+        map = new Map(20);
     }
 
     private void tick(){

@@ -10,7 +10,8 @@ public abstract class Entity {
         WAITER,
         TABLE,
         FLOOR,
-        PASS
+        PASS,
+        OBJECT
     }
 
     public Type type;
