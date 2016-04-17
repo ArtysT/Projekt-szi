@@ -4,9 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 import wAIter.display.Display;
-import wAIter.entities.Entity;
-import wAIter.entities.Floor;
-import wAIter.entities.Waiter;
 import wAIter.map.Map;
 
 public class Game implements Runnable {

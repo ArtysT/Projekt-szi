@@ -1,8 +1,14 @@
 package wAIter.entities;
 
 import java.awt.*;
+import java.lang.*;
+import java.lang.Object;
 
-public class Floor extends Entity {
+public class Floor extends Entity implements Comparable{
+
+    public int heuristicCost = 0;
+    public int finalCost = 0;
+    public Floor parent;
 
     public Floor(int x, int y) {
         super(x, y);
@@ -21,5 +27,10 @@ public class Floor extends Entity {
         g.fillRect(x*50 + 4, y*50 + 4, 42, 42);
         g.setColor(new Color(100, 100, 100));
         g.drawRect(x*50 + 4, y*50 + 4, 42, 42);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return 0;
     }
 }

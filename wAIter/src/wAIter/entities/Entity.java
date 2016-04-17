@@ -5,7 +5,8 @@ import java.awt.*;
 
 public abstract class Entity {
 
-    protected int x, y;
+    public int x;
+    public int y;
     public enum Type{
         WAITER,
         TABLE,
