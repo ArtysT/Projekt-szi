@@ -9,7 +9,7 @@ public class Table extends Entity {
     public Table(int x, int y) {
         super(x, y);
         this.waiting = false;
-        this.hungry = true;
+        this.hungry = false;
         this.type = Type.TABLE;
     }
 
@@ -24,6 +24,7 @@ public class Table extends Entity {
     public void turnWaiting(){
         if (!waiting) {
             this.waiting = true;
+            this.hungry = true;
         }
     }
 
@@ -35,7 +36,7 @@ public class Table extends Entity {
     }
 
     public void turnServed(){
-        if (waiting)
+        if (!waiting)
         {
             this.hungry = false;
         }

@@ -9,8 +9,8 @@ import java.util.List;
 public class Pass extends Entity {
 
 
-    private boolean ready;
-    List<Integer> list = new ArrayList<Integer>();
+    public static boolean ready;
+    private static Queue<Integer> list = new LinkedList<Integer>();
     private static Queue<Integer> queue = new LinkedList<Integer>();
 
     public Pass(int x, int y) {
@@ -23,8 +23,16 @@ public class Pass extends Entity {
         list.add(id);
     }
 
-    private void cook(int id){
-
+    public static void cook(){
+        Random generator = new Random();
+        if(!list.isEmpty()) {
+            if (generator.nextInt(35) == 1) {
+                queue.add(list.poll());
+                if(!ready){
+                    ready = true;
+                }
+            }
+        }
     }
 
     public static int getOrder(){
@@ -45,8 +53,10 @@ public class Pass extends Entity {
         if (ready)
             g.setColor(new Color(255, 225, 50));
         else
-            g.setColor(new Color(100, 100, 100));
+            g.setColor(new Color(170, 145, 70));
         g.fillRect(x*50 + 5, y*50 + 5, 41, 41);
+
+
         g.drawRect(x*50 + 1, y*50 + 1, 48, 48);
 
 
@@ -60,7 +70,17 @@ public class Pass extends Entity {
         Font arial2 = new Font("Arial", Font.BOLD, 15);
         g.setFont(arial2);
         g.drawString("IN PROGRES:", 1000, 115);
+        int i = 130;
+        for(Integer l : list) {
+            g.drawString(l.toString(), 1050, i);
+            i += 15;
+        }
         g.drawString("READY:", 1000, 415);
+        int j = 430;
+        for(Integer q : queue) {
+            g.drawString(q.toString(), 1050, j);
+            j += 15;
+        }
         g.drawLine(950, 50, 950, 700);
     }
 }

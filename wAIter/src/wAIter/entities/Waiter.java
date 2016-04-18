@@ -5,7 +5,9 @@ import java.awt.*;
 
 public class Waiter extends Entity {
 
-    private boolean note, tray;
+    public boolean note;
+    private boolean tray;
+    public int value;
 
     public Waiter(int x, int y) {
         super(x, y);
@@ -15,6 +17,22 @@ public class Waiter extends Entity {
     public void move(int x, int y){
         this.x = x;
         this.y = y;
+    }
+
+    public void setNote(){
+        if(!note && !tray){
+            note = true;
+        }
+        else
+            note = false;
+    }
+
+    public void setTray(){
+        if(!tray && !note){
+            tray = true;
+        }
+        else
+            tray = false;
     }
 
     @Override

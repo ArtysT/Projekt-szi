@@ -14,20 +14,22 @@ import static wAIter.entities.Entity.Type.TABLE;
 
 public class Map {
 
+    int tables = 10;
+    int nowy;
+
     private Entity[][] entity = new Entity[19][15];
     private Waiter waiter;
+    private Pass pass;
     private Table[] table= new Table[20];
     private Point[][] grid = new Point[19][15];
-    Point cur;
+    private Point cur;
 
 
     private int waiterX=9,
                 waiterY=7,
                 targetId,
-                targetX=1,
-                targetY=1;
-
-    private boolean backL=false, backR=false, backD=false, backU=false;
+                targetX=0,
+                targetY=0;
 
     public Map( int tableAmount){
         generateMap(tableAmount);
@@ -51,7 +53,7 @@ public class Map {
         System.out.println("waiter - ok");
 
 
-        Pass pass = new Pass(9, 0);
+        pass = new Pass(9, 0);
         entity[9][0] = pass;
         System.out.println("pass - ok");
 
@@ -81,12 +83,19 @@ public class Map {
 
             }
         }
+
+        for(int s = 0; s<10; s++){
+            table[s].turnWaiting();
+        }
         System.out.println("tables - ok");
         targetTable();
         System.out.println("wygenerowana");
     }
-    PriorityQueue<Point> open;
+
+    private PriorityQueue<Point> open;
+
     private void targetTable(){
+        System.out.println(tables);
         closed = new boolean[19][15];
         open = new PriorityQueue<>((Object o1, Object o2) -> {
             Point c1 = (Point)o1;
@@ -96,17 +105,68 @@ public class Map {
                     c1.f>c2.f?1:0;
         });
         grid[targetX][targetY] = null;
+
         if(entity[targetX][targetY].type == TABLE){
-            targetX = 9;
-            targetY = 0;
+            if(table[targetId].waiting) {
+                table[targetId].turnServiced();
+                waiter.value = targetId;
+                waiter.setNote();
+                targetX = 9;
+                targetY = 0;
+            }
+            else {
+                waiter.setTray();
+                table[targetId].turnServed();
+                if(tables > 0){
+                    Random generator = new Random();
+                    targetId = generator.nextInt(20);
+                    while(!table[targetId].waiting) {
+                        targetId = generator.nextInt(20);
+                    }
+                    nowy = generator.nextInt(20);
+                    if(!table[nowy].hungry) {
+                        table[nowy].turnWaiting();
+                        tables++;
+                    }
+                    targetX = table[targetId].getPosX();
+                    targetY = table[targetId].getPosY();
+                    tables --;}
+                else{
+                    targetX = 9;
+                    targetY = 0;
+                }
+            }
         }
         else {
-            Random generator = new Random();
-            targetId = generator.nextInt(20);
-            table[targetId].turnWaiting();
-            targetX = table[targetId].getPosX();
-            targetY = table[targetId].getPosY();}
-
+            if (waiter.note) {
+                pass.setOrder(waiter.value);
+                waiter.setNote();
+            }
+            if (pass.ready) {
+                waiter.setTray();
+                waiter.value = pass.getOrder();
+                targetId = waiter.value;
+                targetX = table[waiter.value].getPosX();
+                targetY = table[waiter.value].getPosY();
+                pass.check();
+            }
+            else if (!pass.ready) {
+                if(tables > 0){
+                    Random generator = new Random();
+                    targetId = generator.nextInt(20);
+                    while(!table[targetId].waiting) {
+                        targetId = generator.nextInt(20);
+                    }
+                    nowy = generator.nextInt(20);
+                    if(!table[nowy].hungry) {
+                        table[nowy].turnWaiting();
+                        tables++;
+                    }
+                    targetX = table[targetId].getPosX();
+                    targetY = table[targetId].getPosY();
+                    tables --;}
+            }
+        }
         grid[targetX][targetY] = new Point(targetX, targetY);
         grid[targetX][targetY].g = 0;
         grid[targetX][targetY].h = Math.abs(targetY-waiterX) + Math.abs(targetY-waiterY);
@@ -115,10 +175,10 @@ public class Map {
         cur = grid[waiterX][waiterY];
     }
 
-    boolean closed[][];
+    private boolean closed[][];
 
 
-    void checkAndUpdateCost(Point current, Point t, int cost){
+    private void checkAndUpdateCost(Point current, Point t, int cost){
         if(t == null || closed[t.i][t.j])return;
         t.h = Math.abs(t.i-waiterX) + Math.abs(t.j-waiterY);
         int t_final_cost = t.h+cost;
@@ -132,7 +192,7 @@ public class Map {
         }
     }
 
-    public void AStar(){
+    private void AStar(){
 
         //add the start location to open list.
         open.add(grid[targetX][targetY]);
@@ -174,79 +234,14 @@ public class Map {
     public void Move(){
 
         if(cur.parent!=null){
-            System.out.println(cur.f);
             waiterX = cur.i;
             waiterY = cur.j;
             waiter.move(cur.i, cur.j);
             cur = cur.parent;
         }
         else{
-            table[targetId].turnServiced();
             targetTable();
         }
-
-        /*
-        if(waiterX > targetX && entity[waiterX -1][waiterY].type == FLOOR && !backR){
-            backL = false;
-            backD = false;
-            backU = false;
-            waiter.move(-1, 0);
-            waiterX -= 1;
-        }
-        else if(waiterX < targetX && entity[waiterX +1][waiterY].type == FLOOR && !backL){
-            backR = false;
-            backD = false;
-            backU = false;
-            waiter.move(1, 0);
-            waiterX += 1;
-        }
-        else if(waiterY > targetY && entity[waiterX][waiterY - 1].type == FLOOR && !backD){
-            backU = false;
-            backR = false;
-            backL = false;
-            waiter.move(0, -1);
-            waiterY -= 1;
-        }
-        else if(waiterY < targetY && entity[waiterX][waiterY + 1].type == FLOOR && !backU){
-            backD=false;
-            backR = false;
-            backL = false;
-            waiter.move(0, 1);
-            waiterY += 1;
-        }
-        else if((waiterY-targetY)*(waiterY-targetY) <= 1 && (waiterX-targetX)*(waiterX-targetX) <= 1 ){
-            table[targetId].turnServiced();
-            targetTable();
-        }
-        else if(entity[waiterX -1][waiterY].type == FLOOR && !backR){
-            backL=true;
-            backD = false;
-            backU = false;
-            waiter.move(-1, 0);
-            waiterX -= 1;
-        }
-        else if(entity[waiterX +1][waiterY].type == FLOOR && !backL){
-            backR=true;
-            backD = false;
-            backU = false;
-            waiter.move(1, 0);
-            waiterX += 1;
-        }
-        else if(entity[waiterX][waiterY - 1].type == FLOOR && !backD){
-            backU=true;
-            backR = false;
-            backL = false;
-            waiter.move(0, -1);
-            waiterY -= 1;
-        }
-        else if(entity[waiterX][waiterY + 1].type == FLOOR && !backD){
-            backD=true;
-            backR = false;
-            backL = false;
-            waiter.move(0, 1);
-            waiterY += 1;
-        }
-*/
     }
 
     public void render(Graphics g){

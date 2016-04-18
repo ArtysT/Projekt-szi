@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 import wAIter.display.Display;
+import wAIter.entities.Pass;
 import wAIter.map.Map;
 
 public class Game implements Runnable {
@@ -32,6 +33,7 @@ public class Game implements Runnable {
 
     private void tick(){
         map.Move();
+        Pass.cook();
     }
 
     private void render(){
@@ -61,7 +63,7 @@ public class Game implements Runnable {
 
         init();
 
-        int fps = 4;
+        int fps = 6;
         double timePerTick = 1000000000 / fps;
         double delta = 0;
         long now;
