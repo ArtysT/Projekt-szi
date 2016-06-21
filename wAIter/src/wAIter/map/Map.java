@@ -14,22 +14,25 @@ import static wAIter.entities.Entity.Type.TABLE;
 
 public class Map {
 
-    int tables = 10;
+    int tables = 7;
     int nowy;
 
     private Entity[][] entity = new Entity[19][15];
     private Waiter waiter;
     private Pass pass;
-    private Table[] table= new Table[20];
+    private Table[] table= new Table[16];
     private Point[][] grid = new Point[19][15];
     private Point cur;
+    private Point cur2;
 
 
     private int waiterX=9,
-                waiterY=7,
+                waiterY=6,
                 targetId,
                 targetX=0,
-                targetY=0;
+                targetY=0,
+                curX=1,
+                curY=1;
 
     public Map( int tableAmount){
         generateMap(tableAmount);
@@ -48,8 +51,11 @@ public class Map {
                 }
             }
         }
+
+
+
         System.out.println("floor - ok");
-        waiter = new Waiter(9, 7);
+        waiter = new Waiter(9, 6);
         System.out.println("waiter - ok");
 
 
@@ -84,7 +90,7 @@ public class Map {
             }
         }
 
-        for(int s = 0; s<10; s++){
+        for(int s = 0; s<7; s++){
             table[s].turnWaiting();
         }
         System.out.println("tables - ok");
@@ -95,7 +101,6 @@ public class Map {
     private PriorityQueue<Point> open;
 
     private void targetTable(){
-        System.out.println(tables);
         closed = new boolean[19][15];
         open = new PriorityQueue<>((Object o1, Object o2) -> {
             Point c1 = (Point)o1;
@@ -119,11 +124,11 @@ public class Map {
                 table[targetId].turnServed();
                 if(tables > 0){
                     Random generator = new Random();
-                    targetId = generator.nextInt(20);
+                    targetId = generator.nextInt(16);
                     while(!table[targetId].waiting) {
-                        targetId = generator.nextInt(20);
+                        targetId = generator.nextInt(16);
                     }
-                    nowy = generator.nextInt(20);
+                    nowy = generator.nextInt(16);
                     if(!table[nowy].hungry) {
                         table[nowy].turnWaiting();
                         tables++;
@@ -153,11 +158,11 @@ public class Map {
             else if (!pass.ready) {
                 if(tables > 0){
                     Random generator = new Random();
-                    targetId = generator.nextInt(20);
+                    targetId = generator.nextInt(16);
                     while(!table[targetId].waiting) {
-                        targetId = generator.nextInt(20);
+                        targetId = generator.nextInt(16);
                     }
-                    nowy = generator.nextInt(20);
+                    nowy = generator.nextInt(16);
                     if(!table[nowy].hungry) {
                         table[nowy].turnWaiting();
                         tables++;
@@ -173,6 +178,8 @@ public class Map {
         grid[targetX][targetY].f = grid[targetX][targetY].g + grid[targetX][targetY].h;
         AStar();
         cur = grid[waiterX][waiterY];
+        curX=waiterX;
+        curY=waiterY;
     }
 
     private boolean closed[][];
@@ -250,6 +257,14 @@ public class Map {
                 entity[i][j].render(g);
             }
         }
+
+        cur2 = grid[curX][curY];
+        while(cur2.parent!=null){
+            cur2.render(g);
+            cur2 = cur2.parent;
+        }
+
+
         waiter.render(g);
     }
 
